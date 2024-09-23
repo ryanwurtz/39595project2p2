@@ -11,8 +11,8 @@ template <typename K,typename V> hash_list<K,V>::hash_list() {
  *------------------------------------------------------------------------------------*/
 
 template <typename K,typename V> void hash_list<K,V>::insert(K key,V value) {
-    node *ptr = head;
-    node *oldnode = NULL;
+    node<K, V> *ptr = head;
+    node<K, V> *oldnode = NULL;
     while (ptr != NULL) {
         if (ptr->key == key) 
         {
@@ -22,7 +22,7 @@ template <typename K,typename V> void hash_list<K,V>::insert(K key,V value) {
         oldnode = ptr;
         ptr = ptr->next;
     }   
-    node *newnode = new node();
+    node<K, V> *newnode = new node<K, V>();    
     size++;
     newnode->key = key;
     newnode->value = value;
@@ -35,7 +35,7 @@ template <typename K,typename V> void hash_list<K,V>::insert(K key,V value) {
 }
 
 template <typename K,typename V> std::optional<V> hash_list<K,V>::get_value(K key) const { 
-    node *ptr = head;
+    node<K, V> *ptr = head;
     while (ptr != NULL) {
         if (ptr->key == key){
             std::optional<float> val = ptr->value;
@@ -47,8 +47,8 @@ template <typename K,typename V> std::optional<V> hash_list<K,V>::get_value(K ke
 }
 
 template <typename K,typename V> bool hash_list<K,V>::remove(K key) { 
-    node *ptr = head;
-    node *oldnode = NULL;
+    node<K, V> *ptr = head;
+    node<K, V> *oldnode = NULL;
     while (ptr != NULL) {
         if (ptr->key == key){
             if(head != ptr)
@@ -70,8 +70,8 @@ template <typename K,typename V> size_t hash_list<K,V>::get_size() const {
 }
 
 template <typename K,typename V> hash_list<K,V>::~hash_list() {
-    node *ptr = head;
-    node *old = NULL;
+    node<K, V> *ptr = head;
+    node<K, V> *old = NULL;
     while(ptr != NULL)
     {
         old = ptr;
@@ -93,7 +93,7 @@ template <typename K,typename V> hash_list<K,V>::hash_list(const hash_list &othe
     size = 0;
     iter_ptr = NULL;
     head = NULL;
-    node *ptr = other.head;
+    node<K, V> *ptr = other.head;
     while (ptr != NULL) {
         insert(ptr->key,ptr->value);
         ptr = ptr->next;
@@ -150,7 +150,7 @@ template <typename K,typename V> bool hash_list<K,V>::iter_at_end() {
     }
 }
 
-template <typename K,typename V> node * hash_list<K,V>::get_head()  {
+template <typename K,typename V> node<K, V> * hash_list<K,V>::get_head()  {
     return head;
 }
 /**-----------------------------------------------------------------------------------

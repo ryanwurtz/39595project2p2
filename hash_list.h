@@ -145,7 +145,7 @@ public:
      */
     bool iter_at_end();
 
-    node *get_head();
+    node<K, V> *get_head();
     /**-----------------------------------------------------------------------------------
      * END Part 2
      *------------------------------------------------------------------------------------*/
@@ -156,10 +156,10 @@ private:
     size_t size;
 
     /** A pointer to the first node in the list */
-    node *head;
+    node<K, V> *head;
 
     /** The node that the iterator is currently pointing to */
-    node *iter_ptr;
+    node<K, V> *iter_ptr;
 };
 
 #include "hash_list.hpp"

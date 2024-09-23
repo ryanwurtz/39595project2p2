@@ -43,7 +43,7 @@ template <typename K,typename V> void hash_map<K,V>::insert(K key,V value) {
 
 template <typename K,typename V> std::optional<V> hash_map<K,V>::get_value(K key) const {
     for (int i = 0;i < int(_capacity);i++) {
-        node *ptr = _head[i].get_head();
+        node<K, V> *ptr = _head[i].get_head();
         while (ptr != NULL) {
             if (ptr->key == key){
                 std::optional<V> val = ptr->value;
@@ -80,7 +80,7 @@ template <typename K,typename V> size_t hash_map<K,V>::get_capacity() const {
 template <typename K,typename V> void hash_map<K,V>::get_all_keys(K *keys) {
     int j = 0;
     for (int i = 0;i < int(_capacity);i++) {
-        node *ptr = _head[i].get_head();
+        node<K, V> *ptr = _head[i].get_head();
         while (ptr != NULL) {
             keys[j] = ptr->key;
             ptr = ptr->next;
@@ -105,7 +105,7 @@ template <typename K,typename V> void hash_map<K,V>::need_to_rehash() {
     //setting the next increase or decrease capacity
     size_t next_cap;
     size_t prev_cap;
-    for (inti=0;i<3;i++) {
+    for (int i=0;i < 3;i++) {
         if (_capacity >= _capacities[i]) {
             next_cap = _capacities[i+1];
             prev_cap = _capacities[i];
@@ -113,11 +113,11 @@ template <typename K,typename V> void hash_map<K,V>::need_to_rehash() {
     }
     //setting capacity lower or higher and rehashing (not sure if this is the way to reset capacity)
     if (_size > _upper_load_factor * _capacity) {
-        _capacity = next_cap
+        _capacity = next_cap;
         this.rehash();
     }
     else if (_size < _lower_load_factor * _capacity) {
-        _capacity = prev_cap
+        _capacity = prev_cap;
         this.rehash();
     }
 }
@@ -135,7 +135,7 @@ template <typename K,typename V> void hash_map<K,V>::rehash() {
 
     //use rehash_insert to rehash
     for (int j=0;j<_size;j++) {
-        this.rehash_insert(keys[i],values[i]);
+        this.rehash_insert(keys[j],values[j]);
     }
 }
 
