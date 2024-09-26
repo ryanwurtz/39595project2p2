@@ -1,11 +1,12 @@
 #include "hash_map.h"
+#include <algorithm>
 
 template <typename K,typename V> hash_map<K,V>::hash_map(size_t capacity,float upper_load_factor,float lower_load_factor) {
     _size = 0;
     _capacity = capacity;
     _upper_load_factor = upper_load_factor;
     _lower_load_factor = lower_load_factor;
-    _head = new hash_list[int(_capacity)];
+    _head = new hash_list<K, V>[int(_capacity)];
 }
 
 template <typename K,typename V> hash_map<K,V>::hash_map(const hash_map<K,V> &other) {
@@ -13,7 +14,7 @@ template <typename K,typename V> hash_map<K,V>::hash_map(const hash_map<K,V> &ot
     _capacity = other._capacity;
     _upper_load_factor = other._upper_load_factor;
     _lower_load_factor = other._lower_load_factor;
-    _head = new hash_list[(int)_capacity];
+    _head = new hash_list<K, V>[(int)_capacity];
 
     for (int i = 0; i < int(_capacity);i++) {
         _head[i] = other._head[i];
@@ -21,7 +22,7 @@ template <typename K,typename V> hash_map<K,V>::hash_map(const hash_map<K,V> &ot
 }
 
 template <typename K,typename V> hash_map<K,V> &hash_map<K,V>::operator=(const hash_map<K,V> &other) {
-    hash_map temp = other;
+    hash_map<K,V> temp = other;
     std::swap(_upper_load_factor,temp._upper_load_factor);
     std::swap(_lower_load_factor,temp._lower_load_factor);
     std::swap(_size,temp._size);
@@ -38,7 +39,7 @@ template <typename K,typename V> void hash_map<K,V>::insert(K key,V value) {
         _size++;
     }
     //rehash check
-    this.need_to_rehash();
+    this->need_to_rehash();
 }
 
 template <typename K,typename V> std::optional<V> hash_map<K,V>::get_value(K key) const {
@@ -65,7 +66,7 @@ template <typename K,typename V> bool hash_map<K,V>::remove(K key) {
         }
     }
     //rehash check
-    this.need_to_rehash();
+    this->need_to_rehash();
     return keyv;
 }
 
@@ -100,54 +101,58 @@ template <typename K,typename V> hash_map<K,V>::~hash_map() {
 }
 
 template <typename K,typename V> void hash_map<K,V>::need_to_rehash() {
-    //returning if capacity is already max or min
-    if (_capacity == _capacities[2] || _capacity == _capacities[0]) {return;}
     //setting the next increase or decrease capacity
     size_t next_cap;
     size_t prev_cap;
-    for (int i=0;i < 3;i++) {
-        if (_capacity >= _capacities[i]) {
-            next_cap = _capacities[i+1];
-            prev_cap = _capacities[i];
-        }
+    if (_capacity >= _capacities[0] && _capacity < _capacities[1]) {
+        next_cap = _capacities[1];
+        prev_cap = _capacities[0];
     }
-    //setting capacity lower or higher and rehashing (not sure if this is the way to reset capacity)
+    else if (_capacity > _capacities[1] && _capacity <= _capacities[2]) {
+        next_cap = _capacities[2];
+        prev_cap = _capacities[1];
+    }
+    else if (_capacity == _capacities[1]) {
+        next_cap = _capacities[2];
+        prev_cap = _capacities[0];
+    }
+    //setting capacity lower or higher and rehashing
     if (_size > _upper_load_factor * _capacity) {
-        _capacity = next_cap;
-        this.rehash();
+        this->rehash(next_cap);
     }
     else if (_size < _lower_load_factor * _capacity) {
-        _capacity = prev_cap;
-        this.rehash();
+        this->rehash(prev_cap);
     }
 }
 
 //rehashes the list after determining if its necessary
-template <typename K,typename V> void hash_map<K,V>::rehash() {
-    K keys[_size] = {};
-    V values[_size] = {};
+template <typename K,typename V> void hash_map<K,V>::rehash(size_t new_cap) {
+    K *keys = new K[_size];
+    std::optional<V> values[_size] = {};
     //get all key/value pairs
-    this.get_all_keys(keys);
-    for (int i=0;i<_size;i++) {
+    this->get_all_keys(keys);
+    for (int i=0;i<int(_size);i++) {
         values[i] = get_value(keys[i]);
     }
-    //resize/reset the array with new capacity (i think)
-
+    //resize/reset the array with new capacity
+    _capacity = new_cap;
+    hash_list<K,V> *temp = _head;
+    _head = new hash_list<K,V>[int(_capacity)];
     //use rehash_insert to rehash
-    for (int j=0;j<_size;j++) {
-        this.rehash_insert(keys[j],values[j]);
+    for (int j=0;j<int(_size);j++) {
+        this->rehash_insert(keys[j],*values[j]);
     }
+    delete[] temp;
+    delete[] keys;
 }
 
 //this is here to prevent infinite need_to_rehash looping from the normal insert
 template <typename K,typename V> void hash_map<K,V>::rehash_insert(K key,V value) {
     size_t index = _hash(key) % _capacity;
-    int oldsize = _head[index].get_size();
     _head[index].insert(key,value);
-    if(oldsize != int(_head[index].get_size()))
-        _size++;
 }
 
-template <typename K,typename V> void hash_map<K,V>::get_all_sorted_keys(K *keys) {
-    
+template <typename K,typename V> void hash_map<K,V>::get_all_sorted_keys(K *keys) { 
+    this->get_all_keys(keys);
+    std::sort(keys, keys + _size);
 }

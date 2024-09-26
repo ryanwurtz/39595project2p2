@@ -124,7 +124,7 @@ public:
     void need_to_rehash();
 
     //rehashes if necessary
-    void rehash();
+    void rehash(size_t);
     
     //insert used by rehash to avoid infinite looping
     void rehash_insert(K key,V value);
